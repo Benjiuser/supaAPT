@@ -99,6 +99,10 @@
     #auth {
       padding:20px;
     }
+
+    #saved {
+      padding:20px;
+    }
   </style>
 </head>
 <body>
@@ -106,6 +110,7 @@
     <ul>
       <li class="active"><a href="#home" onclick="showTab('home')">Home</a></li>
       <li><a href="#maps" onclick="showTab('maps')">Maps</a></li>
+      <li><a href="#saved" onclick="showTab('saved')">Saved Apartments</a></li>
       <li><a href="#auth" onclick="showTab('auth')">Sign In</a></li>
     </ul>
   </nav>
@@ -129,6 +134,13 @@
           <ul id="apartmentsList" style="list-style:none; padding:0; margin:0;"></ul>
         </div>
       </div>
+    </div>
+
+    <!-- Saved Apartments Page -->
+    <div id="saved" class="tab-content">
+      <h2>Saved Apartments</h2>
+      <p>This page will display a list of apartments you've chosen to save. You can integrate saving functionality into your code to populate this section.</p>
+      <!-- Later, you can dynamically populate a list of saved apartments here -->
     </div>
 
     <!-- Authentication Page -->
@@ -157,3 +169,4 @@
   </script>
 </body>
 </html>
+

@@ -5,7 +5,6 @@ let placesService;
 let markers = [];
 let infoWindow;
 let apartmentsList;
-let searchBox;
 let pagination = null;
 let lastSearchCenter = null;
 let lastZoomLevel = null;
@@ -71,7 +70,7 @@ function shouldSearchAgain(center, zoom) {
 
   const latDiff = Math.abs(center.lat() - lastSearchCenter.lat());
   const lngDiff = Math.abs(center.lng() - lastSearchCenter.lng());
-  return (latDiff > 0.005 || lngDiff > 0.005); // smaller threshold so we search more frequently as user moves
+  return (latDiff > 0.005 || lngDiff > 0.005);
 }
 
 function initialSearch(center) {
@@ -108,7 +107,7 @@ function displayApartments(places) {
     const detailsRequest = {
       placeId: place.place_id,
       fields: [
-        'name', 'photos', 'vicinity', 'website', 'geometry'
+        'name', 'photos', 'vicinity', 'website', 'geometry', 'place_id'
       ]
     };
 
@@ -167,14 +166,15 @@ function addApartmentToList(details) {
   li.className = 'apartment-item';
 
   let photoHtml = '';
+  let photoUrl = '';
   if (details.photos && details.photos.length > 0) {
-    const photoUrl = details.photos[0].getUrl({ maxWidth: 200 });
+    photoUrl = details.photos[0].getUrl({ maxWidth: 200 });
     photoHtml = `<img src="${photoUrl}" alt="${details.name}" />`;
   }
 
   let websiteHtml = '';
   if (details.website) {
-    websiteHtml = `<a href="${details.website}" target="_blank">Visit Website</a>`;
+    websiteHtml = `<a href="${details.website}" target="_blank">Visit Website</a><br>`;
   }
 
   li.innerHTML = `
@@ -183,6 +183,21 @@ function addApartmentToList(details) {
     ${photoHtml}
     ${websiteHtml}
   `;
+
+  // Add a save button
+  const saveBtn = document.createElement('button');
+  saveBtn.innerText = 'Save';
+  saveBtn.addEventListener('click', () => {
+    saveApartment({
+      place_id: details.place_id,
+      name: details.name,
+      vicinity: details.vicinity,
+      website: details.website || '',
+      photo: photoUrl
+    });
+    alert('Apartment saved!');
+  });
+  li.appendChild(saveBtn);
 
   apartmentsList.appendChild(li);
 }
@@ -199,3 +214,60 @@ function clearMarkers() {
   }
   markers = [];
 }
+
+// Saving and loading apartments
+
+function getSavedApartments() {
+  const saved = localStorage.getItem('savedApartments');
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveApartmentsToStorage(apartments) {
+  localStorage.setItem('savedApartments', JSON.stringify(apartments));
+}
+
+function saveApartment(apartment) {
+  const savedApartments = getSavedApartments();
+  // Check for duplicates
+  if (savedApartments.some(a => a.place_id === apartment.place_id)) {
+    return; // Already saved
+  }
+  savedApartments.push(apartment);
+  saveApartmentsToStorage(savedApartments);
+}
+
+// Display saved apartments
+window.displaySavedApartments = function() {
+  const savedList = document.getElementById('savedApartmentsList');
+  savedList.innerHTML = '';
+
+  const savedApartments = getSavedApartments();
+  if (savedApartments.length === 0) {
+    savedList.innerHTML = '<p>No saved apartments yet.</p>';
+    return;
+  }
+
+  savedApartments.forEach(apartment => {
+    const li = document.createElement('li');
+    li.className = 'saved-apartment-item';
+
+    let photoHtml = '';
+    if (apartment.photo) {
+      photoHtml = `<img src="${apartment.photo}" alt="${apartment.name}" />`;
+    }
+
+    let websiteHtml = '';
+    if (apartment.website) {
+      websiteHtml = `<a href="${apartment.website}" target="_blank">Visit Website</a>`;
+    }
+
+    li.innerHTML = `
+      <strong>${apartment.name}</strong><br>
+      ${apartment.vicinity || 'Address not available'}<br>
+      ${photoHtml}
+      ${websiteHtml}
+    `;
+
+    savedList.appendChild(li);
+  });
+};

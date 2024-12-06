@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Expanded Map Example</title>
+  <title>Doormat</title>
   <style>
     body {
       margin:0; padding:0; font-family: sans-serif; background:#f5f5f5;
@@ -28,15 +28,39 @@
       display:none; 
       width:100%; 
       height:100%;
-      overflow:hidden;
+      overflow:auto;
       position:relative;
+      box-sizing:border-box;
     }
+    /* Landing page styling */
     #home {
       display:block;
+      background: #000;
+      color: #fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
       padding:20px;
     }
+    #home h1 {
+      font-size:3em; 
+      margin-bottom:20px;
+    }
+    #home p {
+      margin-bottom:20px;
+      font-size:1.2em;
+    }
+    #home input {
+      padding:8px; margin-bottom:10px; width:250px; font-size:1em;
+    }
+    #home button {
+      margin:5px; padding:8px 12px; cursor:pointer; font-size:1em;
+    }
+
     input {
-      padding:8px; margin-bottom:10px; width:200px;
+      padding:8px; margin-bottom:10px;
     }
     button {
       margin:5px; padding:8px 12px; cursor:pointer;
@@ -45,6 +69,7 @@
     /* Maps layout */
     #maps {
       position:relative;
+      padding:0;
     }
     .map-container {
       width:100%; height:100%; position:absolute; top:0; left:0; right:0; bottom:0;
@@ -84,7 +109,6 @@
       color:blue; text-decoration:underline;
     }
 
-    /* Search box styling */
     .map-search-box {
       position:absolute; 
       top:10px; 
@@ -99,6 +123,22 @@
     #auth {
       padding:20px;
     }
+
+    #saved {
+      padding:20px;
+    }
+
+    .saved-apartment-item {
+      border-bottom:1px solid #ddd;
+      padding:10px 0;
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+    }
+
+    .saved-apartment-item img {
+      max-width:100%; border-radius:5px;
+    }
   </style>
 </head>
 <body>
@@ -106,6 +146,7 @@
     <ul>
       <li class="active"><a href="#home" onclick="showTab('home')">Home</a></li>
       <li><a href="#maps" onclick="showTab('maps')">Maps</a></li>
+      <li><a href="#saved" onclick="showTab('saved')">Saved Apartments</a></li>
       <li><a href="#auth" onclick="showTab('auth')">Sign In</a></li>
     </ul>
   </nav>
@@ -113,8 +154,10 @@
   <div class="page-container">
     <!-- Home Page -->
     <div id="home" class="tab-content">
-      <h1>Welcome</h1>
-      <p>Use the Sign In tab to log in or create an account. Then explore the Maps tab for apartments, condos, and student living options.</p>
+      <h1>Welcome to Doormat</h1>
+      <p>What city are you looking to rent in?</p>
+      <input type="text" id="homeCityInput" placeholder="Enter a city (e.g., Austin, TX)" />
+      <button onclick="searchCity()">Search</button>
     </div>
 
     <!-- Maps Page -->
@@ -129,6 +172,13 @@
           <ul id="apartmentsList" style="list-style:none; padding:0; margin:0;"></ul>
         </div>
       </div>
+    </div>
+
+    <!-- Saved Apartments Page -->
+    <div id="saved" class="tab-content">
+      <h2>Saved Apartments</h2>
+      <p>Below is a list of apartments you've saved.</p>
+      <ul id="savedApartmentsList" style="list-style:none; padding:0; margin:0;"></ul>
     </div>
 
     <!-- Authentication Page -->
@@ -148,8 +198,7 @@
   <script src="main.js"></script>
   <script src="map.js"></script>
 
-  <!-- Google Maps API -->
-  <!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
+  <!-- Google Maps & Geocoding API -->
   <script
     async
     defer

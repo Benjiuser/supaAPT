@@ -28,12 +28,13 @@
       display:none; 
       width:100%; 
       height:100%;
-      overflow:hidden;
+      overflow:auto;
       position:relative;
+      padding:20px;
+      box-sizing:border-box;
     }
     #home {
       display:block;
-      padding:20px;
     }
     input {
       padding:8px; margin-bottom:10px; width:200px;
@@ -45,6 +46,7 @@
     /* Maps layout */
     #maps {
       position:relative;
+      padding:0;
     }
     .map-container {
       width:100%; height:100%; position:absolute; top:0; left:0; right:0; bottom:0;
@@ -99,6 +101,22 @@
     #auth {
       padding:20px;
     }
+
+    #saved {
+      padding:20px;
+    }
+
+    .saved-apartment-item {
+      border-bottom:1px solid #ddd;
+      padding:10px 0;
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+    }
+
+    .saved-apartment-item img {
+      max-width:100%; border-radius:5px;
+    }
   </style>
 </head>
 <body>
@@ -106,6 +124,7 @@
     <ul>
       <li class="active"><a href="#home" onclick="showTab('home')">Home</a></li>
       <li><a href="#maps" onclick="showTab('maps')">Maps</a></li>
+      <li><a href="#saved" onclick="showTab('saved')">Saved Apartments</a></li>
       <li><a href="#auth" onclick="showTab('auth')">Sign In</a></li>
     </ul>
   </nav>
@@ -114,7 +133,7 @@
     <!-- Home Page -->
     <div id="home" class="tab-content">
       <h1>Welcome</h1>
-      <p>Use the Sign In tab to log in or create an account. Then explore the Maps tab for apartments, condos, and student living options.</p>
+      <p>Use the Sign In tab to log in or create an account. Then explore the Maps tab for apartments, condos, and student living options. When you find an apartment you like, click "Save" to store it in your Saved Apartments tab.</p>
     </div>
 
     <!-- Maps Page -->
@@ -129,6 +148,13 @@
           <ul id="apartmentsList" style="list-style:none; padding:0; margin:0;"></ul>
         </div>
       </div>
+    </div>
+
+    <!-- Saved Apartments Page -->
+    <div id="saved" class="tab-content">
+      <h2>Saved Apartments</h2>
+      <p>Below is a list of apartments you've saved.</p>
+      <ul id="savedApartmentsList" style="list-style:none; padding:0; margin:0;"></ul>
     </div>
 
     <!-- Authentication Page -->

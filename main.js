@@ -12,6 +12,11 @@ function showTab(tabId) {
     navItems.forEach(item => item.classList.remove('active'));
     const linkItem = document.querySelector(`nav ul li a[href="#${tabId}"]`)?.parentElement;
     if (linkItem) linkItem.classList.add('active');
+
+    // If we are on the saved tab, display saved apartments
+    if (tabId === 'saved') {
+      displaySavedApartments();
+    }
   }
 }
 

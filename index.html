@@ -3,48 +3,91 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Expanded Map Example</title>
+  <title>Doormat</title>
   <style>
     body {
-      margin:0; padding:0; font-family: sans-serif; background:#f5f5f5;
+      margin:0; padding:0; font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #ccc; 
+      color:#000;
     }
     nav {
       background:#333; padding:10px;
     }
     nav ul {
       list-style:none; display:flex; gap:20px; margin:0; padding:0;
+      justify-content: flex-end;
     }
     nav ul li a {
       color:#fff; text-decoration:none; font-weight:bold;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color:#ddd;
     }
     nav ul li.active a {
       color:yellow;
     }
     .page-container {
-      width:100%; height:calc(100vh - 50px); /* nav height approx 50px */
+      width:100%; height:calc(100vh - 50px);
       position:relative;
     }
     .tab-content {
       display:none; 
       width:100%; 
       height:100%;
-      overflow:hidden;
+      overflow:auto;
       position:relative;
+      box-sizing:border-box;
     }
+
+    /* Landing page styling */
     #home {
       display:block;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
       padding:20px;
+      background:#ccc; 
     }
-    input {
-      padding:8px; margin-bottom:10px; width:200px;
+    #home h1 {
+      font-size:4em; 
+      margin-bottom:40px;
+      font-weight:lighter;
+      letter-spacing:1px;
+      color:#000;
     }
-    button {
-      margin:5px; padding:8px 12px; cursor:pointer;
+    #home input {
+      padding:12px; 
+      margin-bottom:10px; 
+      width:250px; 
+      font-size:1em;
+      border-radius:5px;
+      border:none;
+      outline:none;
+      box-shadow:0 0 5px rgba(0,0,0,0.2);
+    }
+    #home button {
+      margin-top:10px; 
+      padding:12px 20px; 
+      cursor:pointer; 
+      font-size:1em;
+      background:#28a745;
+      color:#fff;
+      border:none;
+      border-radius:5px;
+      transition: background 0.3s ease;
+    }
+    #home button:hover {
+      background:#218838;
     }
 
     /* Maps layout */
     #maps {
       position:relative;
+      padding:0;
+      color:#000;
     }
     .map-container {
       width:100%; height:100%; position:absolute; top:0; left:0; right:0; bottom:0;
@@ -64,6 +107,7 @@
       overflow-y:auto; 
       padding:10px;
       box-sizing:border-box;
+      color:#000;
     }
 
     .apartments-panel h3 {
@@ -84,7 +128,6 @@
       color:blue; text-decoration:underline;
     }
 
-    /* Search box styling */
     .map-search-box {
       position:absolute; 
       top:10px; 
@@ -97,8 +140,67 @@
     }
 
     #auth {
-      padding:20px;
+      padding:20px; color:#000;
     }
+
+    #saved {
+      padding:20px; color:#000;
+    }
+
+    /* Card layout for saved apartments */
+    #savedApartmentsList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .saved-apartment-item {
+      background:#fff;
+      color:#000;
+      border:1px solid #ddd;
+      border-radius:8px;
+      padding:20px;
+      width:300px;
+      box-sizing:border-box;
+      box-shadow:0 2px 10px rgba(0,0,0,0.1);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+    }
+
+    .saved-apartment-item img {
+      max-width:100%;
+      height:auto; 
+      border-radius:5px;
+      margin-bottom:10px;
+    }
+
+    .saved-apartment-item-details {
+      display:flex; 
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .saved-apartment-item-details strong {
+      font-size:1.2em;
+    }
+
+    .unsave-button {
+      background:#dc3545;
+      color:#fff;
+      border:none;
+      border-radius:5px;
+      padding:8px 12px;
+      cursor:pointer;
+      margin-top:10px;
+    }
+
+    .unsave-button:hover {
+      background:#c82333;
+    }
+
   </style>
 </head>
 <body>
@@ -106,6 +208,7 @@
     <ul>
       <li class="active"><a href="#home" onclick="showTab('home')">Home</a></li>
       <li><a href="#maps" onclick="showTab('maps')">Maps</a></li>
+      <li><a href="#saved" onclick="showTab('saved')">Saved Apartments</a></li>
       <li><a href="#auth" onclick="showTab('auth')">Sign In</a></li>
     </ul>
   </nav>
@@ -113,8 +216,9 @@
   <div class="page-container">
     <!-- Home Page -->
     <div id="home" class="tab-content">
-      <h1>Welcome</h1>
-      <p>Use the Sign In tab to log in or create an account. Then explore the Maps tab for apartments, condos, and student living options.</p>
+      <h1>Welcome to Doormat</h1>
+      <input type="text" id="homeCityInput" placeholder="Start typing a city..." autocomplete="off"/>
+      <button onclick="searchSelectedCity()">Search</button>
     </div>
 
     <!-- Maps Page -->
@@ -129,6 +233,13 @@
           <ul id="apartmentsList" style="list-style:none; padding:0; margin:0;"></ul>
         </div>
       </div>
+    </div>
+
+    <!-- Saved Apartments Page -->
+    <div id="saved" class="tab-content">
+      <h2>Saved Apartments</h2>
+      <p>Below is a list of apartments you've saved.</p>
+      <ul id="savedApartmentsList" style="list-style:none; padding:0; margin:0;"></ul>
     </div>
 
     <!-- Authentication Page -->
@@ -148,12 +259,11 @@
   <script src="main.js"></script>
   <script src="map.js"></script>
 
-  <!-- Google Maps API -->
-  <!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
+  <!-- Google Maps & Places API -->
   <script
     async
     defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAzp-k4z_v4_zAUbOj_52RyudNdsp__0lc&libraries=places&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAzp-k4z_v4_zAUbOj_52RyudNdsp__0lc&libraries=places&callback=initHomeAutocomplete">
   </script>
 </body>
 </html>
